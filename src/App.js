@@ -17,9 +17,9 @@ const Word = styled.div`
 `
 
 const words = [
-  [ "勉強", "benkyou" ],
-  [ "魚", "sakana" ],
-  [ "林檎", "ringo" ],
+  ["勉強", "benkyou"],
+  ["魚", "sakana"],
+  ["林檎", "ringo"],
 ];
 
 class App extends Component {
@@ -33,7 +33,7 @@ class App extends Component {
   handleInput = (e) => {
     console.log(e)
     e.preventDefault();
-    if(e.target.value === this.state.remainingWords[0][1]) {
+    if (e.target.value === this.state.remainingWords[0][1]) {
       return this.setState(prevValue => {
         return {
           score: prevValue.score + 1,
@@ -45,6 +45,10 @@ class App extends Component {
     this.setState({ value: e.target.value });
   }
 
+  getNextWord() {
+    return this.state.remainWords[0] ? this.state.remainingWords[0][0] : "done!";
+  }
+
   render() {
     return (
       <AppWrapper>
@@ -53,10 +57,10 @@ class App extends Component {
           <h1 >Welcome to Kanji Attack</h1>
         </header>
 
-        <Word>{this.state.remainingWords[0][0] || "none"}</Word>
-          <input type="text" value={this.state.value} onChange={this.handleInput} />
+        <Word>{this.getNextWord}</Word>
+        <input type="text" value={this.state.value} onChange={this.handleInput} />
 
-        <br/><br/>
+        <br /><br />
 
         {this.state.score}
 
