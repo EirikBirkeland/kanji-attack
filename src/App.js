@@ -26,19 +26,16 @@ const Word = styled.div`
   font-size: 80px;
 `
 
-const tokenizedWords = [
+const tokenizedWords = _.shuffle([
   [['勉', '強'], ['ben', 'kyou']],
   [['魚'], ['sakana']],
   [['林', '檎'], ['rin', 'go']],
-  // [['大', '量', '破', '壊', '兵', '器'], ['tai', 'ryou', 'ha', 'kai', 'hei', 'ki']],
-  // [['三', '位', '一', '体'], ['san', 'mi', 'ittai']],
-  //[['一生', '懸', '命'], ['isshou', 'ken', 'mei']],
-];
+  [['大', '量', '破', '壊', '兵', '器'], ['tai', 'ryou', 'ha', 'kai', 'hei', 'ki']],
+  [['三', '位', '一', '体'], ['san', 'mi', 'ittai']],
+  [['一生', '懸', '命'], ['isshou', 'ken', 'mei']],
+]);
 
 class App extends Component {
-  componentDidMount() {
-    window.state = this.state;
-  }
   state = {
     score: 0,
     remainingWords: Object.assign([], tokenizedWords),
@@ -97,7 +94,7 @@ class App extends Component {
       });
     }
     this.setState({ inputValue: inputValue });
-  }
+  };
 
   renderTokens = () => {
     if (!this.state.remainingWords.length) { return "Done!" };
