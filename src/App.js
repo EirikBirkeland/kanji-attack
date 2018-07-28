@@ -5,11 +5,12 @@ import _ from 'lodash';
 // TODO: Add automatic support for hepburn, nihonshiki, etc.
 // TODO: Use a free online API to retrieve random words w/ romanization (and/or use EDICT locally as a fallback)
 // TODO: Provide the user with a Words Per Minute statistic at the end of the session
-// TODO: Use 3D effects somehow (WebGL)
+// TODO: Use 3D effects (WebGL)
 // TODO: Add a modicum of graphics
 // TODO: "You made X typos"
 // TODO: Highlight kanji that you've already matched in a compound
 // TODO: Add audio hints. The user should have something like 10 audio hints, and each hint reduces score.
+// TODO: Add support for JLPT 2. Online high score.
 
 const AppWrapper = styled.div`
   padding: 1%;
@@ -31,7 +32,7 @@ const tokenizedWords = _.shuffle([
   [['魚'], ['sakana']],
   [['林', '檎'], ['rin', 'go']],
   [['大', '量', '破', '壊', '兵', '器'], ['tai', 'ryou', 'ha', 'kai', 'hei', 'ki']],
-  [['三', '位', '一', '体'], ['san', 'mi', 'ittai']],
+  [['三', '位', '一体'], ['san', 'mi', 'ittai']],
   [['一生', '懸', '命'], ['isshou', 'ken', 'mei']],
 ]);
 
@@ -47,7 +48,7 @@ class App extends Component {
 
   componentDidUpdate() {
     if (this.state.remainingWords.length) {
-      if (this.state.accumulatedUserInput.join('') === this.state.remainingWords[0][1].join('')) {
+      if (Object.assign([], this.state.accumulatedUserInput).sort().join('') === Object.assign([], this.state.remainingWords[0][1]).sort().join('')) {
         return this.setState(prevValue => {
           return {
             score: prevValue.score + 1,
@@ -70,7 +71,7 @@ class App extends Component {
     if (!this.state.hasStarted) {
       this.setState(prevState => {
         return {
-          hasStarted: true,
+          hasStarted: !prevState.hasStarted,
           startTime: Date.now(),
         }
       });
@@ -85,10 +86,10 @@ class App extends Component {
 
       const val = inputValue;
 
-      return this.setState(prevValue => {
+      return this.setState(prevState => {
         console.log(val);
         return {
-          accumulatedUserInput: prevValue.accumulatedUserInput.concat([val]),
+          accumulatedUserInput: prevState.accumulatedUserInput.concat([val]),
           inputValue: '',
         }
       });
