@@ -28,12 +28,12 @@ const Word = styled.div`
 `
 
 const tokenizedWords = _.shuffle([
-  [['勉', '強'], ['ben', 'kyou']],
+  [['勉', '強'], ['ben', 'kyou'], "benkyou.ogg"],
   [['魚'], ['sakana']],
   [['林', '檎'], ['rin', 'go']],
-  [['大', '量', '破', '壊', '兵', '器'], ['tai', 'ryou', 'ha', 'kai', 'hei', 'ki']],
-  [['三', '位', '一体'], ['san', 'mi', 'ittai']],
-  [['一生', '懸', '命'], ['isshou', 'ken', 'mei']],
+  [['大', '量', '破', '壊', '兵', '器'], ['tai', 'ryou', 'ha', 'kai', 'hei', 'ki'], "tairyouhakaiheiki.ogg"],
+  [['三', '位', '一体'], ['san', 'mi', 'ittai'], "sanmiittai.ogg"],
+  [['一生', '懸', '命'], ['isshou', 'ken', 'mei'], "isshoukenmei.ogg"],
 ]);
 
 class App extends Component {
@@ -49,6 +49,9 @@ class App extends Component {
   componentDidUpdate() {
     if (this.state.remainingWords.length) {
       if (Object.assign([], this.state.accumulatedUserInput).sort().join('') === Object.assign([], this.state.remainingWords[0][1]).sort().join('')) {
+        if(this.state.remainingWords[0][2]) {
+          new Audio("/sounds/" + this.state.remainingWords[0][2]).play();
+        }
         return this.setState(prevValue => {
           return {
             score: prevValue.score + 1,
