@@ -71,6 +71,8 @@ class App extends Component {
   }
 
   handleInput = (e) => {
+    e.preventDefault();
+
     if (!this.state.hasStarted) {
       this.setState(prevState => {
         return {
@@ -79,8 +81,7 @@ class App extends Component {
         }
       });
     }
-
-    e.preventDefault();
+    
     const inputValue = e.target.value;
 
     if (inputValue
