@@ -1,10 +1,20 @@
 import React, { Component } from 'react';
 import styled from "styled-components";
+import _ from 'lodash';
+
+// TODO: Add automatic support for hepburn, nihonshiki, etc.
+// TODO: Use a free online API to retrieve random words w/ romanization (and/or use EDICT locally as a fallback)
+// TODO: Provide the user with a Words Per Minute statistic at the end of the session
+// TODO: Use 3D effects somehow (WebGL)
+// TODO: Add a modicum of graphics
+// TODO: "You made X typos"
+// TODO: Highlight kanji that you've already matched in a compound
+// TODO: Add audio hints. The user should have something like 10 audio hints, and each hint reduces score.
 
 const AppWrapper = styled.div`
   padding: 1%;
-  background-color: lime;
-  color: grey;
+  background-image: linear-gradient(to top, #fbc2eb 0%, #a6c1ee 100%);
+  color: black;
   width: 640px;
   min-height: 480px;
   margin: 30px auto;
@@ -16,37 +26,88 @@ const Word = styled.div`
   font-size: 80px;
 `
 
-const words = [
-  ["勉強", "benkyou"],
-  ["魚", "sakana"],
-  ["林檎", "ringo"],
+const tokenizedWords = [
+  [['勉', '強'], ['ben', 'kyou']],
+  [['魚'], ['sakana']],
+  [['林', '檎'], ['rin', 'go']],
+  // [['大', '量', '破', '壊', '兵', '器'], ['tai', 'ryou', 'ha', 'kai', 'hei', 'ki']],
+  // [['三', '位', '一', '体'], ['san', 'mi', 'ittai']],
+  //[['一生', '懸', '命'], ['isshou', 'ken', 'mei']],
 ];
 
 class App extends Component {
-
+  componentDidMount() {
+    window.state = this.state;
+  }
   state = {
     score: 0,
-    remainingWords: Object.assign([], words),
-    value: '',
+    remainingWords: Object.assign([], tokenizedWords),
+    inputValue: '',
+    accumulatedUserInput: [],
+    hasStarted: false,
+    isDone: false,
+  }
+
+  componentDidUpdate() {
+    if (this.state.remainingWords.length) {
+      if (this.state.accumulatedUserInput.join('') === this.state.remainingWords[0][1].join('')) {
+        return this.setState(prevValue => {
+          return {
+            score: prevValue.score + 1,
+            words: prevValue.remainingWords.shift(),
+            inputValue: '',
+            accumulatedUserInput: [],
+          };
+        });
+      }
+    } else if (!this.state.isDone) {
+      return this.setState(prevState => {
+        return {
+          isDone: !prevState.isDone
+        }
+      });
+    }
   }
 
   handleInput = (e) => {
-    console.log(e)
-    e.preventDefault();
-    if (e.target.value === this.state.remainingWords[0][1]) {
-      return this.setState(prevValue => {
+    if (!this.state.hasStarted) {
+      this.setState(prevState => {
         return {
-          score: prevValue.score + 1,
-          words: prevValue.remainingWords.shift(),
-          value: '',
-        };
+          hasStarted: true,
+          startTime: Date.now(),
+        }
       });
     }
-    this.setState({ value: e.target.value });
+
+    e.preventDefault();
+    const inputValue = e.target.value;
+
+    if (inputValue
+      && this.state.remainingWords[0][1].includes(inputValue)
+      && !this.state.accumulatedUserInput.includes(inputValue)) {
+
+      const val = inputValue;
+
+      return this.setState(prevValue => {
+        console.log(val);
+        return {
+          accumulatedUserInput: prevValue.accumulatedUserInput.concat([val]),
+          inputValue: '',
+        }
+      });
+    }
+    this.setState({ inputValue: inputValue });
   }
 
-  getNextWord() {
-    return this.state.remainWords[0] ? this.state.remainingWords[0][0] : "done!";
+  renderTokens = () => {
+    if (!this.state.remainingWords.length) { return "Done!" };
+    const [sourceTokens, targetTokens] = this.state.remainingWords[0];
+
+    return _.zipWith(sourceTokens, targetTokens, (sourceToken, targetToken) => {
+      return (
+        <span style={{ color: this.state.accumulatedUserInput.includes(targetToken) ? "green" : "black" }}>{sourceToken}</span>
+      )
+    });
   }
 
   render() {
@@ -54,15 +115,18 @@ class App extends Component {
       <AppWrapper>
 
         <header>
-          <h1 >Welcome to Kanji Attack</h1>
+          <h1>Kanji Attack</h1>
         </header>
 
-        <Word>{this.getNextWord}</Word>
-        <input type="text" value={this.state.value} onChange={this.handleInput} />
+        <Word>{!this.state.isDone ? this.renderTokens() : ''}</Word>
+        <span>{this.state.isDone && `you finished in ${((Date.now() - this.state.startTime) / 1000).toFixed(2)} seconds`}</span>
+        <input type="text" value={this.state.inputValue} onChange={this.handleInput}
+          style={{ display: !this.state.remainingWords.length ? "none" : "" }}
+          disabled={!this.state.remainingWords.length} />
 
         <br /><br />
 
-        {this.state.score}
+        {!this.state.isDone && this.state.score}
 
       </AppWrapper>
     );
